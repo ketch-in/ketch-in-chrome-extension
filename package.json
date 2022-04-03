@@ -1,6 +1,6 @@
 {
   "name": "ketch-in-chrome-extension",
-  "version": "0.0.1",
+  "version": "0.0.1-beta.1",
   "description": "This is a Chrome Extension. Based on Google Meet information, Organizer and Attendee are separated so that they can communicate with the server and draw the screen.",
   "main": "index.js",
   "repository": {
