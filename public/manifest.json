@@ -1,0 +1,37 @@
+{
+  "name": "Ketch In",
+  "description": "This is a Chrome Extension. Based on Google Meet information, Organizer and Attendee are separated so that they can communicate with the server and draw the screen.",
+  "version": "0.1",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["tabs", "storage", "scripting", "webRequest"],
+  "host_permissions": ["https://meet.google.com/*"],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon.png",
+      "32": "icon.png",
+      "48": "icon.png"
+    }
+  },
+  "icons": {
+    "16": "icon.png",
+    "32": "icon.png",
+    "48": "icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://meet.google.com/*"],
+      "js": ["socket.io.js", "common.js", "content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["draw-icon.png"],
+      "matches": ["https://meet.google.com/*"]
+    }
+  ]
+}

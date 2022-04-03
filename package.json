@@ -1,0 +1,28 @@
+{
+  "name": "ketch-in-chrome-extension",
+  "version": "0.0.1",
+  "description": "This is a Chrome Extension. Based on Google Meet information, Organizer and Attendee are separated so that they can communicate with the server and draw the screen.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ketch-in/ketch-in-chrome-extension"
+  },
+  "scripts": {
+    "clean": "rm -rf ./dist",
+    "prebuild": "npm run clean",
+    "build": "tsc && cp -R ./public/* ./dist"
+  },
+  "keywords": [
+    "Chrome Extension"
+  ],
+  "author": "Sotaneum",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "^0.0.163",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "eslint": "^8.2.0",
+    "prettier": "^2.4.1",
+    "typescript": "^4.4.4"
+  }
+}
