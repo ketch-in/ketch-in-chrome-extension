@@ -3,4 +3,4 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SERVER_URL = "[INSERT_YOUR_SERVER]";
+const SERVER_URL = '[INSERT_YOUR_SERVER]';

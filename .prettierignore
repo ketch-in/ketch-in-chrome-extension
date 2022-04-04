@@ -1,0 +1,5 @@
+types/
+public/socket.io.js
+dist
+node_modules
+.vscode

@@ -19,7 +19,7 @@ body.error {
   width: 36px;
   border-radius: 12px;
   transition: all 0.5s;
-  content: "";
+  content: '';
 }
 .toggle::after {
   position: absolute;
@@ -27,7 +27,7 @@ body.error {
   right: 24px;
   width: 24px;
   height: 24px;
-  content: "";
+  content: '';
   background-color: whitesmoke;
   transition: all 0.5s;
   border-radius: 100%;
