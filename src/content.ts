@@ -75,7 +75,7 @@ function fetchVideoParentElement(dataInitialParticipantId: string) {
 }
 
 /** 소켓 연결 및 이벤트 처리합니다. */
-function connect(url: string) {
+function wsConnect(url: string) {
   const socket = io(url);
   const googleMeetId = window.location.pathname.slice(1);
 
@@ -213,7 +213,7 @@ function initialContent() {
         return;
       }
 
-      fetchServerUrl().then(connect);
+      fetchServerUrl().then(wsConnect);
     })
     .catch(() => {
       setTimeout(initialContent, 3000);
