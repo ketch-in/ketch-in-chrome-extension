@@ -8,6 +8,7 @@
     "url": "https://github.com/ketch-in/ketch-in-chrome-extension"
   },
   "scripts": {
+    "preclean": "npx prettier --write .",
     "clean": "rm -rf ./dist",
     "prebuild": "npm run clean",
     "build": "tsc && cp -R ./public/* ./dist"
