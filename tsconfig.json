@@ -6,7 +6,11 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "noEmitOnError": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "@ts/*": ["src/ts/*"]
+    }
   },
   "files": [
     "src/ts/common.ts",
