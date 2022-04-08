@@ -6,8 +6,11 @@ const CopyPlugin = require('copy-webpack-plugin');
 const DotenvPlugin = require('dotenv-webpack');
 
 module.exports = (env) => {
+  const isProduction = env.mode === 'production';
+
   return {
     mode: env.mode,
+    devtool: isProduction ? 'source-map' : 'inline-cheap-source-map',
     entry: {
       background: path.resolve(__dirname, './src/ts/background.ts'),
       content: path.resolve(__dirname, './src/ts/content.ts'),
