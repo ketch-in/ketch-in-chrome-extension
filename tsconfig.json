@@ -8,5 +8,10 @@
     "noEmitOnError": true,
     "typeRoots": ["node_modules/@types", "./types"]
   },
-  "files": ["src/ts/background.ts", "src/ts/content.ts", "src/ts/popup.ts"]
+  "files": [
+    "src/ts/common.ts",
+    "src/ts/background.ts",
+    "src/ts/content.ts",
+    "src/ts/popup.ts"
+  ]
 }
