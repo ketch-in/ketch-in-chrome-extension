@@ -1,4 +1,5 @@
 const path = require('path');
+const CleanPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
 
 module.exports = (env) => {
   return {
@@ -24,5 +25,10 @@ module.exports = (env) => {
         },
       ],
     },
+    plugins: [
+      new CleanPlugin({
+        cleanStaleWebpackAssets: false,
+      }),
+    ],
   };
 };
