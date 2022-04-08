@@ -3,6 +3,7 @@ const CleanPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
 const HtmlPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const DotenvPlugin = require('dotenv-webpack');
 
 module.exports = (env) => {
   return {
@@ -50,6 +51,9 @@ module.exports = (env) => {
             to: './[name][ext]',
           },
         ],
+      }),
+      new DotenvPlugin({
+        path: `./${env.mode}.env`,
       }),
     ],
   };
