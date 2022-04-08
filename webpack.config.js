@@ -1,6 +1,7 @@
 const path = require('path');
 const CleanPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
 const HtmlPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = (env) => {
   return {
@@ -24,6 +25,11 @@ module.exports = (env) => {
           use: 'ts-loader',
           exclude: /node_modules/,
         },
+        {
+          test: /\.css$/,
+          use: [MiniCssExtractPlugin.loader, 'css-loader'],
+          exclude: /node_modules/,
+        },
       ],
     },
     plugins: [
@@ -31,10 +37,11 @@ module.exports = (env) => {
         cleanStaleWebpackAssets: false,
       }),
       new HtmlPlugin({
-        template: path.resolve(__dirname, './src/popup.ts'),
+        template: path.resolve(__dirname, './src/popup.html'),
         filename: 'popup.html',
         chunks: ['popup'],
       }),
+      new MiniCssExtractPlugin(),
     ],
   };
 };
