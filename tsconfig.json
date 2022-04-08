@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
     "strict": true,
-    "module": "commonjs",
+    "module": "es6",
     "target": "es6",
     "esModuleInterop": true,
-    "sourceMap": false,
-    "rootDir": "src",
     "outDir": "dist",
     "noEmitOnError": true,
     "typeRoots": ["node_modules/@types", "./types"]
-  }
+  },
+  "files": ["src/ts/background.ts", "src/ts/content.ts", "src/ts/popup.ts"]
 }
