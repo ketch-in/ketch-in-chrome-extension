@@ -2,6 +2,7 @@ const path = require('path');
 const CleanPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
 const HtmlPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = (env) => {
   return {
@@ -42,6 +43,14 @@ module.exports = (env) => {
         chunks: ['popup'],
       }),
       new MiniCssExtractPlugin(),
+      new CopyPlugin({
+        patterns: [
+          {
+            from: './public/**/*',
+            to: './[name][ext]',
+          },
+        ],
+      }),
     ],
   };
 };

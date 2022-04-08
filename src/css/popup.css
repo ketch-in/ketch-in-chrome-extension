@@ -1,0 +1,54 @@
+body {
+  width: 48px;
+  height: 24px;
+}
+body.error {
+  width: 250px;
+}
+.toggle {
+  position: relative;
+  width: 48px;
+  height: 24px;
+}
+.toggle::before {
+  position: absolute;
+  background-color: grey;
+  top: 3px;
+  left: 6px;
+  height: 18px;
+  width: 36px;
+  border-radius: 12px;
+  transition: all 0.5s;
+  content: '';
+}
+.toggle::after {
+  position: absolute;
+  top: 0px;
+  right: 24px;
+  width: 24px;
+  height: 24px;
+  content: '';
+  background-color: whitesmoke;
+  transition: all 0.5s;
+  border-radius: 100%;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 40%);
+}
+
+.toggle.on::before {
+  background-color: rgb(77, 30, 53);
+}
+
+.toggle.on::after {
+  right: 0px;
+  background-color: hotpink;
+}
+
+.toggle.disabled::before {
+  background-color: #eee;
+  opacity: 0.7;
+}
+
+.toggle.disabled::after {
+  background-color: #eee;
+  box-shadow: none;
+}
