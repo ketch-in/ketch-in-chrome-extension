@@ -1,5 +1,6 @@
 const path = require('path');
 const CleanPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
+const HtmlPlugin = require('html-webpack-plugin');
 
 module.exports = (env) => {
   return {
@@ -28,6 +29,11 @@ module.exports = (env) => {
     plugins: [
       new CleanPlugin({
         cleanStaleWebpackAssets: false,
+      }),
+      new HtmlPlugin({
+        template: path.resolve(__dirname, './src/popup.ts'),
+        filename: 'popup.html',
+        chunks: ['popup'],
       }),
     ],
   };
