@@ -10,8 +10,10 @@
   "scripts": {
     "preclean": "npx prettier --write .",
     "clean": "rm -rf ./dist",
-    "prebuild": "npm run clean",
-    "build": "tsc && cp -R ./public/* ./dist"
+    "build:dev": "webpack --env mode=development",
+    "build:prod": "webpack --env mode=production",
+    "build:watch": "webpack --env mode=development -w",
+    "build": "npm run build:prod"
   },
   "keywords": [
     "Chrome Extension"
