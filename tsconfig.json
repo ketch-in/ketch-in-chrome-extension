@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "noEmitOnError": true,
-    "typeRoots": ["node_modules/@types", "./types"]
+    "moduleResolution": "node"
   },
   "files": [
     "src/ts/common.ts",
