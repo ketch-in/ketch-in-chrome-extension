@@ -12,10 +12,5 @@
       "@ts/*": ["src/ts/*"]
     }
   },
-  "files": [
-    "public/common.ts",
-    "src/ts/background.ts",
-    "src/ts/content.ts",
-    "src/ts/popup.ts"
-  ]
+  "files": ["src/ts/background.ts", "src/ts/content.ts", "src/ts/popup.ts"]
 }

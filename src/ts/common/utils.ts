@@ -1,49 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-type createElProps = {
-  type: string;
-  options?: { [key: string]: string };
-  children?: Element | string | (Element | string)[];
-};
-
-type El = Element & {
-  createElement?: (args: createElProps) => El;
-};
-
-type SendMessageRequest<T> = {
-  type: string;
-  message: T;
-};
-
-interface Socket {
-  emit(ev: string, ...args: unknown[]): Socket;
-}
-
-interface OrganizerInfo {
-  id?: string | null;
-  active?: boolean;
-  toggle?: boolean;
-}
-
-interface AttendeeInfo {
-  target?: 'self' | 'other';
-  toggle?: boolean;
-}
-
-interface DataInfo {
-  organizer: OrganizerInfo;
-  attendee: AttendeeInfo;
-}
-
-type ChangedData = { [key: string]: chrome.storage.StorageChange };
-type DrawSignal = 'up' | 'down' | 'move';
-type DrawPoint = [
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  signal: DrawSignal
-];
+import {
+  AttendeeInfo,
+  createElProps,
+  DataInfo,
+  El,
+  OrganizerInfo,
+} from './types';
 
 const emptyOrganizer: OrganizerInfo = {
   id: null,

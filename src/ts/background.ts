@@ -1,4 +1,4 @@
-importScripts('common.js');
+import '@ts/common';
 
 /** 활성화된 Tab를 반환합니다. Popup응답이 왔을 경우 사용합니다. */
 async function getCurrentTab() {

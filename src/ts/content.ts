@@ -1,3 +1,4 @@
+import '@ts/common';
 import { io } from 'socket.io-client';
 
 /** background에서 서버 주소를 전달 받습니다. */
