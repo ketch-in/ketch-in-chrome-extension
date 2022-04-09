@@ -1,5 +1,11 @@
-import '@ts/common';
 import { io } from 'socket.io-client';
+import {
+  DataInfo,
+  DrawPoint,
+  DrawSignal,
+  OrganizerInfo,
+} from '@ts/common/types';
+import { createElement, handshaking, sendMessage } from '@ts/common/utils';
 
 /** background에서 서버 주소를 전달 받습니다. */
 function fetchServerUrl() {

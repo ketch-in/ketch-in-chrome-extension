@@ -1,3 +1,5 @@
+import { createElement, handshaking, sendMessage } from './common/utils';
+
 /** 참석자의 toggle 정보를 background에서 가져옵니다. */
 function getToggle(): Promise<boolean> {
   return sendMessage<boolean>('popup:toggle');

@@ -1,4 +1,20 @@
-import '@ts/common';
+import {
+  OrganizerInfo,
+  AttendeeInfo,
+  SendMessageRequest,
+} from '@ts/common/types';
+import { sendMessage, storage } from '@ts/common/utils';
+
+const emptyOrganizer: OrganizerInfo = {
+  id: null,
+  active: false,
+  toggle: false,
+};
+
+const emptyAttendee: AttendeeInfo = {
+  target: 'other',
+  toggle: false,
+};
 
 /** 활성화된 Tab를 반환합니다. Popup응답이 왔을 경우 사용합니다. */
 async function getCurrentTab() {
