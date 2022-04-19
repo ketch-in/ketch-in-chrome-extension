@@ -12,9 +12,9 @@ module.exports = (env) => {
     mode: env.mode,
     devtool: isProduction ? 'source-map' : 'inline-cheap-source-map',
     entry: {
-      background: path.resolve(__dirname, './src/ts/background.ts'),
-      content: path.resolve(__dirname, './src/ts/content.ts'),
-      popup: path.resolve(__dirname, './src/ts/popup.ts'),
+      background: path.resolve(__dirname, './src/background.ts'),
+      content: path.resolve(__dirname, './src/content.ts'),
+      popup: path.resolve(__dirname, './src/popup/popup.ts'),
     },
     output: {
       path: path.resolve(__dirname, './dist'),
@@ -22,9 +22,6 @@ module.exports = (env) => {
     },
     resolve: {
       extensions: ['.ts', '.js'],
-      alias: {
-        '@ts': path.resolve(__dirname, './src/ts'),
-      },
     },
     module: {
       rules: [
@@ -45,7 +42,7 @@ module.exports = (env) => {
         cleanStaleWebpackAssets: false,
       }),
       new HtmlPlugin({
-        template: path.resolve(__dirname, './src/popup.html'),
+        template: path.resolve(__dirname, './src/popup/popup.html'),
         filename: 'popup.html',
         chunks: ['popup'],
       }),

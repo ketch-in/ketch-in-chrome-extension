@@ -2,8 +2,8 @@ import {
   OrganizerInfo,
   AttendeeInfo,
   SendMessageRequest,
-} from '@ts/common/types';
-import { sendMessage, storage } from '@ts/common/utils';
+} from './common/types';
+import { sendMessage, storage } from './common/utils';
 
 const emptyOrganizer: OrganizerInfo = {
   id: null,

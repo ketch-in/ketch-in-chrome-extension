@@ -6,11 +6,7 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "noEmitOnError": true,
-    "moduleResolution": "node",
-    "baseUrl": "./",
-    "paths": {
-      "@ts/*": ["src/ts/*"]
-    }
+    "moduleResolution": "node"
   },
-  "files": ["src/ts/background.ts", "src/ts/content.ts", "src/ts/popup.ts"]
+  "files": ["src/background.ts", "src/content.ts", "src/popup/popup.ts"]
 }
