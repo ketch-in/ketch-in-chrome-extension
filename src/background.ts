@@ -1,5 +1,20 @@
-importScripts('common.js');
-importScripts('server.js');
+import {
+  OrganizerInfo,
+  AttendeeInfo,
+  SendMessageRequest,
+} from './common/types';
+import { sendMessage, storage } from './common/utils';
+
+const emptyOrganizer: OrganizerInfo = {
+  id: null,
+  active: false,
+  toggle: false,
+};
+
+const emptyAttendee: AttendeeInfo = {
+  target: 'other',
+  toggle: false,
+};
 
 /** 활성화된 Tab를 반환합니다. Popup응답이 왔을 경우 사용합니다. */
 async function getCurrentTab() {
@@ -188,7 +203,7 @@ async function handleContentMessage(
 /** extension이 설치되었을 경우 실행됩니다. */
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.clear(() => {
-    chrome.storage.local.set({ wsServerUrl: SERVER_URL });
+    chrome.storage.local.set({ wsServerUrl: process.env.SERVER_URL });
   });
 });
 

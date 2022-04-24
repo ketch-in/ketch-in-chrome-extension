@@ -60,15 +60,11 @@ npm run build
 
 ## TypeScript
 
-In the case of `io`, it is imported in `./public/popup.html` in the form of `script src`, so it can be accessed as a global variable.
+### Socket
 
-To make it accessible as a global variable, I defined it in the `./types/socket.io` part. It is almost forced to import, so some typeguards or methods may not exist.
-
-If a typeguard or method does not exist, you can directly edit it in the `types/socket.io` section.
+Extension uses `socket.io-client` ^4.4.1 version. so, server must use `socket.io` ^3.0.0 or later version.
 
 ### Chrome Extension
-
-In the case of the chrome extension, it does not allow scripts in the html itself, and src likewise restricts riding external paths. For that reason, `socket.io` is also stored locally in `./public/socket.io.js`.
 
 ```json
 {

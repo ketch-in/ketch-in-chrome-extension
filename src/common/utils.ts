@@ -1,49 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-type createElProps = {
-  type: string;
-  options?: { [key: string]: string };
-  children?: Element | string | (Element | string)[];
-};
-
-type El = Element & {
-  createElement?: (args: createElProps) => El;
-};
-
-type SendMessageRequest<T> = {
-  type: string;
-  message: T;
-};
-
-interface Socket {
-  emit(ev: string, ...args: unknown[]): Socket;
-}
-
-interface OrganizerInfo {
-  id?: string | null;
-  active?: boolean;
-  toggle?: boolean;
-}
-
-interface AttendeeInfo {
-  target?: 'self' | 'other';
-  toggle?: boolean;
-}
-
-interface DataInfo {
-  organizer: OrganizerInfo;
-  attendee: AttendeeInfo;
-}
-
-type ChangedData = { [key: string]: chrome.storage.StorageChange };
-type DrawSignal = 'up' | 'down' | 'move';
-type DrawPoint = [
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  signal: DrawSignal
-];
+import {
+  AttendeeInfo,
+  createElProps,
+  DataInfo,
+  El,
+  OrganizerInfo,
+} from './types';
 
 const emptyOrganizer: OrganizerInfo = {
   id: null,
@@ -59,7 +20,7 @@ const emptyAttendee: AttendeeInfo = {
 /**
  * Element를 생성합니다.
  */
-function createElement({
+export function createElement({
   type,
   options = {},
   children = [],
@@ -88,9 +49,9 @@ function createElement({
 /**
  * background에 데이터를 요청 및 수정합니다.
  */
-function sendMessage<T>(type: string): Promise<T>;
-function sendMessage<T>(type: string, value: T): Promise<boolean>;
-function sendMessage<T>(type: string, value?: T): Promise<boolean | T> {
+export function sendMessage<T>(type: string): Promise<T>;
+export function sendMessage<T>(type: string, value: T): Promise<boolean>;
+export function sendMessage<T>(type: string, value?: T): Promise<boolean | T> {
   const isGet = value === undefined;
   return new Promise((resolve) => {
     if (isGet) {
@@ -118,37 +79,40 @@ function sendMessage<T>(type: string, value?: T): Promise<boolean | T> {
   });
 }
 
-function handshaking(target: string) {
+export function handshaking(target: string) {
   return sendMessage<boolean>(`${target}:handshaking`);
 }
 
 /**
  * localStorage에 데이터를 저장 및 불러옵니다.
  */
-function storage(tabId: number, type: 'all'): Promise<DataInfo>;
-function storage(tabId: number, type: 'attendee'): Promise<AttendeeInfo>;
-function storage(
+export function storage(tabId: number, type: 'all'): Promise<DataInfo>;
+export function storage(tabId: number, type: 'attendee'): Promise<AttendeeInfo>;
+export function storage(
   tabId: number,
   type: 'attendee',
   data?: AttendeeInfo
 ): Promise<boolean>;
-function storage(
+export function storage(
   tabId: number,
   type: 'attendee',
   data?: AttendeeInfo
 ): Promise<AttendeeInfo | boolean>;
-function storage(tabId: number, type: 'organizer'): Promise<OrganizerInfo>;
-function storage(
+export function storage(
+  tabId: number,
+  type: 'organizer'
+): Promise<OrganizerInfo>;
+export function storage(
   tabId: number,
   type: 'organizer',
   data?: OrganizerInfo
 ): Promise<boolean>;
-function storage(
+export function storage(
   tabId: number,
   type: 'organizer',
   data?: OrganizerInfo
 ): Promise<OrganizerInfo | boolean>;
-function storage(
+export function storage(
   tabId: number,
   type: 'all' | 'organizer' | 'attendee',
   data?: OrganizerInfo | AttendeeInfo
@@ -186,6 +150,6 @@ function storage(
  * @param msg 출력할 메시지
  * @param color 메시지 컬러
  */
-function log(msg: unknown, color = '#07D97A') {
+export function log(msg: unknown, color = '#07D97A') {
   console.trace('%c[KETCH IN] %c%o', 'color: #0895FE', `color: ${color}`, msg);
 }
