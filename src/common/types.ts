@@ -13,10 +13,6 @@ export type SendMessageRequest<T> = {
   message: T;
 };
 
-export interface Socket {
-  emit(ev: string, ...args: unknown[]): Socket;
-}
-
 export interface OrganizerInfo {
   id?: string | null;
   active?: boolean;
@@ -33,7 +29,6 @@ export interface DataInfo {
   attendee: AttendeeInfo;
 }
 
-export type ChangedData = { [key: string]: chrome.storage.StorageChange };
 export type DrawSignal = 'up' | 'down' | 'move';
 export type DrawPoint = [
   x: number,
