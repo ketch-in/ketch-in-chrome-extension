@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="./public/icon.png">
+  <img src="./public/img/icon.png">
   <br>
   KETCH IN
   <br>
