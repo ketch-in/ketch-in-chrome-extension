@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
 import { DataInfo, DrawPoint, DrawSignal, OrganizerInfo } from './common/types';
 import { createElement, handshaking, sendMessage } from './common/utils';
+import init from './meet';
 
 /** background에서 서버 주소를 전달 받습니다. */
 function fetchServerUrl() {
@@ -225,3 +226,22 @@ function initialContent() {
 }
 
 initialContent();
+
+init({
+  onParticipationStart: (state) => {
+    const { participantId, nickname, imageUrl } = state;
+    // 참여 시작
+  },
+  onParticipationEnd: (state) => {
+    const { participantId } = state;
+    // 참여 종료
+  },
+  onPresentationStart: (state) => {
+    const { presenterId } = state;
+    // 발표 시작
+  },
+  onPresentationEnd: (state) => {
+    const { presenterId } = state;
+    // 발표 종료
+  },
+});
