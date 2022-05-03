@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+message ResolveMeetingSpace {
+  string meetId = 2;
+}
+
+message CreateMeetingDevice {
+  string participantId = 1;
+  string nickname = 2;
+  string imageUrl = 3;
+}
+
+message UpdateMeetingDevice {
+  string participantId = 1;
+  string nickname = 2;
+  string imageUrl = 3;
+}
