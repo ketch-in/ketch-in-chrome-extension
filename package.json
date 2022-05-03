@@ -14,8 +14,8 @@
     "build:prod": "webpack --env mode=production",
     "build:watch": "webpack --env mode=development -w",
     "build": "npm run build:prod",
-    "pbjs": "pbjs -t static-module -w es6 -o src/meet/compiled.js src/meet/meet.proto",
-    "pbts": "pbts -o src/meet/compiled.d.ts src/meet/compiled.js"
+    "pbjs": "pbjs -t static-module -w es6 -o src/meet/message.js src/meet/message.proto",
+    "pbts": "pbts -o src/meet/message.d.ts src/meet/message.js"
   },
   "keywords": [
     "Chrome Extension"
