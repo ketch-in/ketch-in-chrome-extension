@@ -32,6 +32,7 @@ type Decoded<T extends Key> = T extends 'ResolveMeetingSpace'
   ? UpdateMeetingDeviceResponse
   : never;
 
+/** protobuf 데이터를 읽을 수 있도록 변환합니다. */
 export function decodeProtobuf<T extends Key>(key: T, buffer: Uint8Array) {
   const decoder = decoderMap[key];
   return decoder.decode(buffer).toJSON() as Decoded<T>;

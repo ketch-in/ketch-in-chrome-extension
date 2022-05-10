@@ -34,6 +34,7 @@ const state: State = {
   meetId: '',
 };
 
+/** fetch API를 변경하는 스크립트를 DOM에 삽입합니다. */
 function injectPatchScript() {
   const scriptEl = document.createElement('script');
   scriptEl.src = chrome.runtime.getURL('fetch-interceptor.js');
@@ -121,6 +122,7 @@ function handleResponse(key: Key, body: string, config: Config) {
   }
 }
 
+/** meet의 http response를 모니터링합니다. */
 export default function initNetworkMonitoring(config: Config) {
   document.addEventListener('response', (e: CustomEventInit<Detail>) => {
     if (!e.detail) {
