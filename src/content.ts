@@ -189,7 +189,9 @@ function wsConnect(url: string) {
   /** organizer 정보가 업데이트 되었을 경우 업데이트합니다. */
   socket.on('organizer-info:update', updateOrganizerInfo);
 
-  chrome.runtime.onMessage.addListener((request) => {
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    sendResponse(true);
+
     const { type, message } = request;
 
     const [target, title, mode] = type.split(':');
