@@ -121,7 +121,7 @@ function handleResponse(key: Key, body: string, config: Config) {
   }
 }
 
-export default function init(config: Config) {
+export default function initNetworkMonitoring(config: Config) {
   document.addEventListener('response', (e: CustomEventInit<Detail>) => {
     if (!e.detail) {
       return;
