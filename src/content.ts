@@ -238,10 +238,12 @@ init({
   },
   onPresentationStart: (state) => {
     const { presenterId } = state;
-    // 발표 시작
+
+    sendMessage('content:start-organizer', presenterId);
   },
   onPresentationEnd: (state) => {
     const { presenterId } = state;
-    // 발표 종료
+
+    sendMessage('content:stop-organizer', presenterId);
   },
 });

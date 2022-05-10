@@ -35,81 +35,6 @@ async function contentSendMessage(tabId: number, type: string) {
   return tabSendMessage(tabId, type, data);
 }
 
-/** 발표를 시작했을 경우 호출됩니다. */
-async function startOrganizer(tabId: number, dataInitialParticipantId: string) {
-  await storage(tabId, 'organizer', {
-    id: dataInitialParticipantId,
-    active: false,
-    toggle: false,
-  });
-  await storage(tabId, 'attendee', { target: 'self' });
-  await contentSendMessage(tabId, 'content:id');
-}
-
-/** 발표를 중단했을 경우 호출됩니다. */
-async function stopOrganizer(tabId: number) {
-  await storage(tabId, 'organizer', emptyOrganizer);
-  await storage(tabId, 'attendee', { target: 'other' });
-  await contentSendMessage(tabId, 'content:id');
-}
-
-/**
- * 발표자 모드를 조건에 따라 활성화합니다.
- * 1. UpdateMeetingSpace 값에 B가 있는 경우 활성화됩니다.
- * 2. UpdateMeetingDevice 값에 D가 있고 target 값이 self이며, 발표자의 ID와 응답값의 ID가 같은 경우 비활성화됩니다.
- */
-function fetchOrganizer(details: chrome.webRequest.WebRequestBodyDetails) {
-  const { url, tabId, requestBody } = details;
-
-  // -1 Tab과 무관한 값일 경우 발생
-  // The ID of the tab in which the request takes place. Set to -1 if the request isn't related to a tab.
-  if (tabId === -1) {
-    return;
-  }
-
-  if (
-    !url.match(/(.*\/UpdateMeeting)(Space|Device)$/) ||
-    !requestBody ||
-    !requestBody?.raw
-  ) {
-    return;
-  }
-  const raw = requestBody.raw.shift();
-  if (!raw || !raw.bytes) {
-    return;
-  }
-
-  const decoder = new TextDecoder('utf-8');
-  const payload = decoder.decode(new Uint8Array(raw.bytes));
-  const result = payload.match(/@spaces\/[\w-]+\/devices\/[\w-]+/g);
-  if (!result) {
-    return;
-  }
-
-  const targetData = result.shift();
-  if (!targetData) {
-    return;
-  }
-
-  const dataInitialParticipantId = targetData.slice(1);
-  if (!dataInitialParticipantId) {
-    return;
-  }
-
-  // 발표를 시작합니다. (UpdateMeetingSpace)
-  if (/\nB\n@spaces/.test(payload)) {
-    startOrganizer(tabId, dataInitialParticipantId);
-    return;
-  }
-
-  // 발표가 종료됩니다. (UpdateMeetingDevice)
-  storage(tabId, 'organizer').then(({ id }) => {
-    if (id === dataInitialParticipantId && /^\nD/.test(payload)) {
-      stopOrganizer(tabId);
-    }
-  });
-}
-
 /** Popup에서 전달 받은 sendMessage를 처리합니다. */
 async function handlePopupMessage(
   title: string,
@@ -192,6 +117,28 @@ async function handleContentMessage(
     return await contentSendMessage(tabId, 'content:toggle');
   }
 
+  /** 발표를 시작했을 경우 호출됩니다. */
+  if (title === 'start-organizer' && mode === 'set') {
+    const participantId = request.message as string;
+
+    await storage(tabId, 'organizer', {
+      id: participantId,
+      active: false,
+      toggle: false,
+    });
+    await storage(tabId, 'attendee', { target: 'self' });
+
+    return await contentSendMessage(tabId, 'content:id');
+  }
+
+  /** 발표를 중단했을 경우 호출됩니다. */
+  if (title === 'stop-organizer' && mode === 'set') {
+    await storage(tabId, 'organizer', emptyOrganizer);
+    await storage(tabId, 'attendee', { target: 'other' });
+
+    return await contentSendMessage(tabId, 'content:id');
+  }
+
   if (title === 'initial' && mode === 'set') {
     await storage(tabId, 'attendee', emptyAttendee);
     await storage(tabId, 'organizer', emptyOrganizer);
@@ -225,11 +172,4 @@ chrome.runtime.onMessage.addListener(
       return handleContentMessage(title, mode, tabId, request);
     }
   }
-);
-
-/** Network를 감시합니다. */
-chrome.webRequest.onBeforeRequest.addListener(
-  fetchOrganizer,
-  { urls: ['https://meet.google.com/*'] },
-  ['requestBody']
 );
