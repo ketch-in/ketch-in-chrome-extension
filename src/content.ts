@@ -227,12 +227,11 @@ function initialContent() {
     });
 }
 
-initialContent();
-
 initNetworkMonitoring({
   onParticipationStart: (state) => {
     const { participantId, nickname, imageUrl } = state;
-    // 참여 시작
+
+    initialContent();
   },
   onParticipationEnd: (state) => {
     const { participantId } = state;
