@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
 import { DataInfo, DrawPoint, DrawSignal, OrganizerInfo } from './common/types';
 import { createElement, handshaking, sendMessage } from './common/utils';
+import initNetworkMonitoring from './meet';
 
 /** background에서 서버 주소를 전달 받습니다. */
 function fetchServerUrl() {
@@ -188,7 +189,9 @@ function wsConnect(url: string) {
   /** organizer 정보가 업데이트 되었을 경우 업데이트합니다. */
   socket.on('organizer-info:update', updateOrganizerInfo);
 
-  chrome.runtime.onMessage.addListener((request) => {
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    sendResponse(true);
+
     const { type, message } = request;
 
     const [target, title, mode] = type.split(':');
@@ -224,4 +227,24 @@ function initialContent() {
     });
 }
 
-initialContent();
+initNetworkMonitoring({
+  onParticipationStart: (state) => {
+    const { participantId, nickname, imageUrl } = state;
+
+    initialContent();
+  },
+  onParticipationEnd: (state) => {
+    const { participantId } = state;
+    // 참여 종료
+  },
+  onPresentationStart: (state) => {
+    const { presenterId } = state;
+
+    sendMessage('content:start-organizer', presenterId);
+  },
+  onPresentationEnd: (state) => {
+    const { presenterId } = state;
+
+    sendMessage('content:stop-organizer', presenterId);
+  },
+});

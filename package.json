@@ -13,7 +13,9 @@
     "build:dev": "webpack --env mode=development",
     "build:prod": "webpack --env mode=production",
     "build:watch": "webpack --env mode=development -w",
-    "build": "npm run build:prod"
+    "build": "npm run build:prod",
+    "pbjs": "pbjs -t static-module -w es6 -o src/meet/message.js src/meet/message.proto",
+    "pbts": "pbts -o src/meet/message.d.ts src/meet/message.js"
   },
   "keywords": [
     "Chrome Extension"
@@ -44,6 +46,7 @@
     "webpack-cli": "^4.9.2"
   },
   "dependencies": {
+    "protobufjs": "^6.11.2",
     "socket.io-client": "^4.4.1"
   }
 }

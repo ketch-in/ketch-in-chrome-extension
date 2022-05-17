@@ -30,7 +30,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["draw-icon.png"],
+      "resources": ["draw-icon.png", "fetch-interceptor.js"],
       "matches": ["https://meet.google.com/*"]
     }
   ]
