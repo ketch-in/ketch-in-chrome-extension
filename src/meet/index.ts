@@ -136,9 +136,11 @@ export default function initNetworkMonitoring(config: Config) {
     ];
     const { url, body } = e.detail;
     const key = keys.find((key) => url.includes(key));
-    if (key) {
-      handleResponse(key, body, config);
+    if (!key) {
+      return;
     }
+
+    handleResponse(key, body, config);
   });
 
   injectPatchScript();
