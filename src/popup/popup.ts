@@ -1,48 +1,43 @@
-import { createElement, handshaking, sendMessage } from '../common/utils';
+import './popup.css';
+import message, { MESSAGE_KEY } from '../message';
+import { TARGET } from '../storage';
 
-/** 참석자의 toggle 정보를 background에서 가져옵니다. */
-function getToggle(): Promise<boolean> {
-  return sendMessage<boolean>('popup:toggle');
-}
+export type createElProps = {
+  type: string;
+  options?: { [key: string]: string };
+  children?: Element | string | (Element | string)[];
+};
 
-/** 참석자의 toggle 정보를 background에 전송합니다. */
-function setToggle(toggle: boolean): Promise<boolean> {
-  return sendMessage<boolean>('popup:toggle', toggle);
-}
+export type El = Element & {
+  createElement?: (args: createElProps) => El;
+};
 
-/** 현재 tab의 URL 정보를 background에서 가져옵니다. */
-function getUrl(): Promise<string> {
-  return sendMessage<string>('popup:url');
-}
+export function createElement({
+  type,
+  options = {},
+  children = [],
+}: createElProps): El {
+  const element = document.createElement(type) as El;
 
-/** Toggle의 상태 값을 background에 요청합니다. */
-function getStatus(): Promise<{ active: boolean; enabled: boolean }> {
-  return sendMessage<{ active: boolean; enabled: boolean }>('popup:status');
-}
+  Object.keys(options).forEach((key) =>
+    element.setAttribute(key, options[key])
+  );
 
-/** toggle 버튼을 생성합니다. */
-async function createToggleButton(enabled: boolean) {
-  const body = document.querySelector('body');
-  const toggle = await getToggle();
-  if (!body) {
-    return;
+  if (!Array.isArray(children)) {
+    children = Array(children);
   }
 
-  const div = createElement({
-    type: 'div',
-    options: {
-      class: enabled ? `toggle${toggle ? ' on' : ''}` : 'toggle disabled',
-    },
-  });
-  if (enabled) {
-    div.addEventListener('click', () => setToggle(div.classList.toggle('on')));
-  }
+  children.filter((item) => !!item).forEach((child) => element.append(child));
 
-  body.className = '';
-  body.appendChild(div);
+  element.createElement = (args: createElProps): El => {
+    const el = createElement(args);
+    element.append(el);
+    return el;
+  };
+
+  return element;
 }
 
-/** 에러 문구를 표시합니다. */
 function createErrorMessage(
   message = 'Google Meet를 선택 후 다시 시도해 주세요.'
 ) {
@@ -61,29 +56,78 @@ function createErrorMessage(
   );
 }
 
-/** Popup을 초기화합니다. 클릭시마다 호출됩니다. */
-async function initialPopup() {
-  const result = await handshaking('popup');
+function setToggle(target: TARGET, toggle: boolean) {
+  console.log('set toggle', target, toggle);
+  if (target === TARGET.SELF) {
+    message.set(MESSAGE_KEY.ACTIVE, toggle);
+  }
 
-  if (!result) {
+  if (target === TARGET.OTHER) {
+    message.set(MESSAGE_KEY.TOGGLE, toggle);
+  }
+}
+
+async function createToggleButton(
+  target: TARGET,
+  active: boolean,
+  toggle: boolean
+) {
+  const body = document.querySelector('body');
+  if (!body) {
     return;
   }
 
-  const url = await getUrl();
+  if (target === TARGET.SELF) {
+    const div = createElement({
+      type: 'div',
+      options: {
+        class: `toggle${active ? ' on' : ''}`,
+      },
+    });
 
-  // Google Meet이 아닌 경우 에러메시지를 출력합니다.
-  if (!url || !url.match(/^https:\/\/meet.google.com\/.*/)) {
-    return createErrorMessage();
-  }
-
-  const { active, enabled } = await getStatus();
-  if (!active) {
-    return createErrorMessage(
-      '발표를 시작하거나 발표가 시작될 때까지 대기해주세요.'
+    div.addEventListener('click', () =>
+      setToggle(target, div.classList.toggle('on'))
     );
+
+    body.appendChild(div);
   }
 
-  createToggleButton(enabled);
+  if (target === TARGET.OTHER) {
+    const div = createElement({
+      type: 'div',
+      options: {
+        class: active ? `toggle${toggle ? ' on' : ''}` : 'toggle disabled',
+      },
+    });
+
+    if (active) {
+      div.addEventListener('click', () =>
+        setToggle(target, div.classList.toggle('on'))
+      );
+    }
+
+    body.appendChild(div);
+  }
 }
 
-initialPopup();
+async function initPopup() {
+  const url = await message.get<string>(MESSAGE_KEY.URL);
+  if (!url || !url.includes('meet.google.com')) {
+    createErrorMessage();
+    return;
+  }
+
+  const enabled = await message.get<boolean>(MESSAGE_KEY.ENABLED);
+  if (!enabled) {
+    createErrorMessage('발표를 시작하거나 발표가 시작될 때까지 대기해주세요.');
+    return;
+  }
+
+  const target = await message.get<TARGET>(MESSAGE_KEY.TARGET);
+  const active = await message.get<boolean>(MESSAGE_KEY.ACTIVE);
+  const toggle = await message.get<boolean>(MESSAGE_KEY.TOGGLE);
+
+  createToggleButton(target, active, toggle);
+}
+
+initPopup();
