@@ -1,175 +1,177 @@
-import {
-  OrganizerInfo,
-  AttendeeInfo,
-  SendMessageRequest,
-} from './common/types';
-import { sendMessage, storage } from './common/utils';
+import { MESSAGE_KEY, Message } from './message';
+import storage, { TARGET, OrganizerInfo } from './storage';
+import observer from './observer';
 
-const emptyOrganizer: OrganizerInfo = {
-  id: null,
-  active: false,
-  toggle: false,
-};
+const ports: { [tabId: number]: chrome.runtime.Port } = {};
 
-const emptyAttendee: AttendeeInfo = {
-  target: 'other',
-  toggle: false,
-};
+async function onContentMessage(tabId: number, { key, payload }: Message) {
+  const port = ports[tabId];
 
-/** 활성화된 Tab를 반환합니다. Popup응답이 왔을 경우 사용합니다. */
-async function getCurrentTab() {
-  const queryOptions = { active: true, currentWindow: true };
-  const [tab] = await chrome.tabs.query(queryOptions);
-  return tab;
-}
+  if (key === MESSAGE_KEY.REFETCH) {
+    const target = await storage.get(tabId, 'target');
+    if (target === TARGET.SELF) {
+      const organizerInfo = await storage.getOrganizerInfo(tabId);
 
-/** 특정 탭에 sendMessage를 전송합니다.  */
-function tabSendMessage<T>(id: number, type: string, message: T) {
-  return chrome.tabs.sendMessage(id, { type: `${type}:set`, message });
-}
-
-/** content에 DataInfo 값을 sendMessage로 응답합니다. */
-async function contentSendMessage(tabId: number, type: string) {
-  const data = await storage(tabId, 'all');
-
-  return tabSendMessage(tabId, type, data);
-}
-
-/** Popup에서 전달 받은 sendMessage를 처리합니다. */
-async function handlePopupMessage(
-  title: string,
-  mode: string,
-  request: SendMessageRequest<unknown>
-) {
-  const { type, message } = request;
-
-  if (title === 'handshaking' && mode === 'get') {
-    return sendMessage(type, true);
+      port.postMessage({
+        key: MESSAGE_KEY.REFETCH,
+        payload: organizerInfo,
+      });
+    }
   }
 
-  const tab = await getCurrentTab();
+  if (key === MESSAGE_KEY.UPDATE) {
+    const organizerInfo = payload as OrganizerInfo;
+    const { id, active } = organizerInfo;
+
+    storage.set(tabId, {
+      organizerId: id,
+      active: active,
+      target: TARGET.OTHER,
+    });
+
+    if (id === null) {
+      ports[tabId].postMessage({ key: MESSAGE_KEY.UNINSTALL });
+    }
+
+    if (active) {
+      ports[tabId].postMessage({
+        key: MESSAGE_KEY.INSTALL,
+        payload: id,
+      });
+    } else {
+      ports[tabId].postMessage({ key: MESSAGE_KEY.UNINSTALL });
+    }
+  }
+}
+
+async function onPopupMessage({ key, payload }: Message) {
+  // popup에서 온 message event에는 tab정보가 없으므로 활성화된 tab을 가져옴.
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tabs[0]) {
+    return;
+  }
+
+  const tab = tabs[0];
   const tabId = tab?.id as number;
 
-  if (title === 'toggle' && mode === 'get') {
-    const { toggle } = await storage(tabId, 'attendee');
-    return await sendMessage(type, toggle || false);
+  if (key === MESSAGE_KEY.URL) {
+    return tab?.url as string;
   }
 
-  if (title === 'toggle' && mode === 'set') {
-    const toggle = message as boolean;
-    await storage(tabId, 'attendee', { toggle });
+  if (key === MESSAGE_KEY.TARGET) {
+    const target = await storage.get(tabId, 'target');
+    return target;
+  }
 
-    const { target } = await storage(tabId, 'attendee');
+  // meet에서 누군가 발표 중이어야 토글 버튼이 활성화 됨.
+  if (key === MESSAGE_KEY.ENABLED) {
+    const enabled = await storage.get(tabId, 'organizerId');
+    return enabled;
+  }
 
-    if (target === 'self') {
-      await storage(tabId, 'organizer', { active: toggle });
+  if (key === MESSAGE_KEY.ACTIVE) {
+    if (payload === undefined) {
+      const active = await storage.get(tabId, 'active');
+      return active;
     }
 
-    await contentSendMessage(tabId, 'content:toggle');
-  }
+    const active = payload as boolean;
+    storage.set(tabId, { active: active });
 
-  if (title === 'url' && mode === 'get') {
-    const { url } = tab;
-    return await sendMessage(type, url);
-  }
-
-  if (title === 'status' && mode === 'get') {
-    const { attendee, organizer } = await storage(tabId, 'all');
-
-    const active = !!organizer.id;
-    const enabled =
-      (attendee.target === 'self' && active) ||
-      (attendee.target === 'other' && organizer.active);
-
-    return await sendMessage(type, { active, enabled });
-  }
-}
-
-/** Content에서 전달 받은 sendMessage를 처리합니다. */
-async function handleContentMessage(
-  title: string,
-  mode: string,
-  tabId: number,
-  request: SendMessageRequest<unknown>
-) {
-  const { type } = request;
-
-  if (title === 'handshaking' && mode === 'get') {
-    return await tabSendMessage(tabId, type, true);
-  }
-
-  if (title === 'serverUrl' && mode === 'get') {
-    return await chrome.storage.local.get('wsServerUrl', ({ wsServerUrl }) =>
-      tabSendMessage(tabId, type, wsServerUrl)
-    );
-  }
-
-  if (title === 'organizer-info' && mode === 'get') {
-    return await contentSendMessage(tabId, type);
-  }
-
-  if (title === 'organizer-info' && mode === 'set') {
-    const organizer = request.message as OrganizerInfo;
-
-    await storage(tabId, 'attendee', emptyAttendee);
-    await storage(tabId, 'organizer', organizer);
-
-    return await contentSendMessage(tabId, 'content:toggle');
-  }
-
-  /** 발표를 시작했을 경우 호출됩니다. */
-  if (title === 'start-organizer' && mode === 'set') {
-    const participantId = request.message as string;
-
-    await storage(tabId, 'organizer', {
-      id: participantId,
-      active: false,
-      toggle: false,
+    const organizerId = await storage.get(tabId, 'organizerId');
+    ports[tabId].postMessage({
+      key: MESSAGE_KEY.UPDATE,
+      payload: {
+        id: organizerId,
+        active: active,
+      },
     });
-    await storage(tabId, 'attendee', { target: 'self' });
-
-    return await contentSendMessage(tabId, 'content:id');
   }
 
-  /** 발표를 중단했을 경우 호출됩니다. */
-  if (title === 'stop-organizer' && mode === 'set') {
-    await storage(tabId, 'organizer', emptyOrganizer);
-    await storage(tabId, 'attendee', { target: 'other' });
+  if (key === MESSAGE_KEY.TOGGLE) {
+    if (payload === undefined) {
+      const toggle = await storage.get(tabId, 'toggle');
+      return toggle;
+    }
 
-    return await contentSendMessage(tabId, 'content:id');
-  }
-
-  if (title === 'initial' && mode === 'set') {
-    await storage(tabId, 'attendee', emptyAttendee);
-    await storage(tabId, 'organizer', emptyOrganizer);
-
-    return await contentSendMessage(tabId, 'content:toggle');
+    const toggle = payload as boolean;
+    storage.set(tabId, { toggle: toggle });
+    const organizerId = await storage.get(tabId, 'organizerId');
+    if (toggle) {
+      ports[tabId].postMessage({
+        key: MESSAGE_KEY.INSTALL,
+        payload: organizerId,
+      });
+    } else {
+      ports[tabId].postMessage({ key: MESSAGE_KEY.INSTALL });
+    }
   }
 }
 
-/** extension이 설치되었을 경우 실행됩니다. */
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.clear(() => {
-    chrome.storage.local.set({ wsServerUrl: process.env.SERVER_URL });
-  });
+// 참여, 참여 종료, 발표, 발표 종료를 감지.
+observer.observe({
+  onParticipationStart(tabId) {
+    storage.get(tabId, 'meetId').then((meetId) => {
+      ports[tabId].postMessage({
+        key: MESSAGE_KEY.CONNECT,
+        payload: meetId,
+      });
+    });
+  },
+
+  onPresentationStart(tabId) {
+    storage.getOrganizerInfo(tabId).then((organizerInfo) => {
+      ports[tabId].postMessage({
+        key: MESSAGE_KEY.INSTALL,
+        payload: organizerInfo.id,
+      });
+
+      ports[tabId].postMessage({
+        key: MESSAGE_KEY.UPDATE,
+        payload: organizerInfo,
+      });
+    });
+  },
+
+  onPresentationStop(tabId: number) {
+    storage
+      .set(tabId, {
+        organizerId: null,
+        target: TARGET.OTHER,
+      })
+      .then(() => {
+        ports[tabId].postMessage({ key: MESSAGE_KEY.UNINSTALL });
+
+        ports[tabId].postMessage({
+          key: MESSAGE_KEY.UPDATE,
+          payload: { id: null },
+        });
+      });
+  },
 });
 
-/** sendMessage를 전달 받았을 경우 실행됩니다. */
 chrome.runtime.onMessage.addListener(
-  (request: SendMessageRequest<unknown>, sender, sendResponse) => {
-    sendResponse(true);
+  (message: Message, sender, sendResponse) => {
+    // sender에 tab 정보가 있으면 content에서 온 message
+    if (typeof sender?.tab?.id === 'number') {
+      if (message.key === MESSAGE_KEY.CONNECT) {
+        const tabId = sender.tab.id;
+        const port = chrome.tabs.connect(tabId);
 
-    const { type } = request;
-    const [target, title, mode] = type.split(':');
+        port.onMessage.addListener((message) => {
+          onContentMessage(tabId, message);
+        });
 
-    if (target === 'popup') {
-      return handlePopupMessage(title, mode, request);
-    }
+        ports[tabId] = port;
+      }
+    } else {
+      onPopupMessage(message).then(sendResponse);
 
-    if (target === 'content') {
-      const tabId = sender.tab?.id as number;
-
-      return handleContentMessage(title, mode, tabId, request);
+      return true;
     }
   }
 );
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+  storage.remove(tabId);
+});
