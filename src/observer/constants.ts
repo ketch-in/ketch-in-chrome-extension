@@ -8,10 +8,10 @@ export const EXTRA_HEADERS = 'extraHeaders';
 export const RESOLVE_MEETING_SPACE = 'ResolveMeetingSpace';
 export const UPDATE_MEETING_DEVICE = 'UpdateMeetingDevice';
 
-export const REQUEST_TYPE = {
-  START: '`',
-  STOP: 'D',
-} as const;
+export enum REQUEST_TYPE {
+  START = '`',
+  STOP = 'D',
+}
 
 /** meet 홈에서 생성과 동시에 입장하는 경우 처리를 위한 값 */
 export const DIRECT_PARTICIPATION = '_meet/';
