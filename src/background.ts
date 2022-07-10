@@ -108,6 +108,27 @@ async function onPopupMessage({ key, payload }: Message) {
   }
 }
 
+// meet에 들어간 상태에서 extension을 새로 설치한 경우 재접속 안내
+async function onInstalled() {
+  const tabs = await chrome.tabs.query({
+    url: 'https://meet.google.com/*',
+  });
+
+  tabs
+    .map((tab) => tab.id as number)
+    .forEach((tabId) => {
+      chrome.scripting.executeScript({
+        target: { tabId },
+        func: () => {
+          // TODO: ketch-in-components 적용, 메시지 수정
+          alert(
+            'Ketch-in이 설치되었습니다. 이용하려면 새로고침후 다시 접속해주세요.'
+          );
+        },
+      });
+    });
+}
+
 // 참여, 참여 종료, 발표, 발표 종료를 감지.
 observer.observe({
   onParticipationStart(tabId) {
@@ -178,4 +199,10 @@ chrome.runtime.onMessage.addListener(
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   storage.remove(tabId);
+});
+
+chrome.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    onInstalled();
+  }
 });
