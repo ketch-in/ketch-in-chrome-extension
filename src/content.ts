@@ -35,7 +35,10 @@ function initSocket() {
   });
 }
 
-function onDisconnect() {}
+function onDisconnect() {
+  // TODO: ketch-in-component 적용, 안내 메시지 수정
+  alert('extension이 업데이트 되었습니다. 새로고침 후 다시 접속해주세요.');
+}
 
 function onMessage({ key, payload }: Message) {
   if (key === MESSAGE_KEY.CONNECT) {
