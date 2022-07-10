@@ -2,7 +2,7 @@ import { MESSAGE_KEY, Message } from './message';
 import storage, { TARGET, OrganizerInfo } from './storage';
 import observer from './observer';
 
-const ports: { [tabId: number]: chrome.runtime.Port } = {};
+const ports: { [tabId: string]: chrome.runtime.Port } = {};
 
 async function onContentMessage(tabId: number, { key, payload }: Message) {
   const port = ports[tabId];
@@ -117,6 +117,10 @@ observer.observe({
         payload: meetId,
       });
     });
+  },
+
+  onParticipationStop(tabId) {
+    storage.remove(tabId);
   },
 
   onPresentationStart(tabId) {
