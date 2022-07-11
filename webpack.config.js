@@ -12,9 +12,10 @@ module.exports = (env) => {
     mode: env.mode,
     devtool: isProduction ? 'source-map' : 'inline-cheap-source-map',
     entry: {
-      background: path.resolve(__dirname, './src/background.ts'),
-      content: path.resolve(__dirname, './src/content.ts'),
-      popup: path.resolve(__dirname, './src/popup/popup.ts'),
+      'background': path.resolve(__dirname, './src/background.ts'),
+      'content': path.resolve(__dirname, './src/content.ts'),
+      'popup': path.resolve(__dirname, './src/popup/popup.ts'),
+      'fetch-interceptor': path.resolve(__dirname, './src/interceptor'),
     },
     output: {
       path: path.resolve(__dirname, './dist'),
