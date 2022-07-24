@@ -1,4 +1,4 @@
-import { MESSAGE_KEY, SOCKET_EVENT } from './constants';
+import { MESSAGE_KEY, RTC_EVENT } from './constants';
 
 export type Message = {
   key: MESSAGE_KEY;
@@ -18,7 +18,7 @@ function set<T>(key: MESSAGE_KEY, payload: any) {
   return chrome.runtime.sendMessage<Message, void>(message);
 }
 
-export { MESSAGE_KEY, SOCKET_EVENT };
+export { MESSAGE_KEY, RTC_EVENT };
 
 export default {
   get,

@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "protobufjs": "^6.11.2",
+    "rtcmulticonnection": "^3.7.1",
     "socket.io-client": "^4.4.1"
   }
 }

@@ -14,13 +14,14 @@ export enum MESSAGE_KEY {
   TARGET = 'target',
   ACTIVE = 'active',
   TOGGLE = 'toggle',
+  RUN = 'run',
 }
 
 /**
  * content <-> socket
  * 주고 받는 socket event
  */
-export enum SOCKET_EVENT {
+export enum RTC_EVENT {
   CONNECT = 'connect',
   DISCONNECT = 'disconnect',
   CONNECT_ERROR = 'connect_error',

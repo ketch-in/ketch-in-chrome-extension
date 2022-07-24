@@ -155,6 +155,13 @@ observer.observe({
         key: MESSAGE_KEY.UPDATE,
         payload: organizerInfo,
       });
+
+      storage.get(tabId, 'meetId').then((meetId) => {
+        ports[tabId].postMessage({
+          key: MESSAGE_KEY.RUN,
+          payload: meetId,
+        });
+      });
     });
   },
 
