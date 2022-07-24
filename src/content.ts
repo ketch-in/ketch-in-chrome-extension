@@ -120,7 +120,6 @@ function onConnect(meetId: string, port: chrome.runtime.Port) {
   connection.checkPresence(meetId, (isRoomExist: boolean) =>
     (isRoomExist ? joinRoom : openRoom)(meetId, (joined: boolean) => {
       if (joined) {
-        console.log('1231231231');
         connection.send({ key: REFETCH });
       }
     })
