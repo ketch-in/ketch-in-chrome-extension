@@ -1,38 +1,97 @@
-import message, { MESSAGE_KEY, SOCKET_EVENT, Message } from './message';
+import message, { MESSAGE_KEY, RTC_EVENT, Message } from './message';
 import { OrganizerInfo } from './storage';
 import Draw from './draw';
-import { io, Socket } from 'socket.io-client';
 
-let meetId: string;
-let port: chrome.runtime.Port;
-let socket: Socket;
-const draw = new Draw((drawPoint) => {
-  socket.emit(SOCKET_EVENT.DRAW, drawPoint);
-});
+//@ts-ignore
+import RTCMultiConnection from 'rtcmulticonnection';
+import { io } from 'socket.io-client';
 
-function initSocket() {
-  socket = io(process.env.SERVER_URL as string);
+//@ts-ignore
+window.io = io;
 
-  socket.on(SOCKET_EVENT.CONNECT, () => {
-    socket.emit(SOCKET_EVENT.JOIN, meetId);
-  });
+const { DRAW } = RTC_EVENT;
+const { RUN, CONNECT, UPDATE, INSTALL, REFETCH, UNINSTALL } = MESSAGE_KEY;
 
-  socket.on(SOCKET_EVENT.DISCONNECT, () => {});
+type createElProps = {
+  type: string;
+  options?: { [key: string]: string };
+  children?: Element | string | (Element | string)[];
+};
 
-  socket.on(SOCKET_EVENT.CONNECT_ERROR, () => {
-    draw.uninstall();
-  });
+type El = Element & {
+  createElement?: (args: createElProps) => El;
+};
 
-  socket.on(SOCKET_EVENT.REFETCH, () => {
-    port.postMessage({ key: MESSAGE_KEY.REFETCH });
-  });
+//@ts-ignore
+const connection = new RTCMultiConnection();
+const draw = new Draw((drawPoint) =>
+  connection.send({ key: DRAW, payload: drawPoint })
+);
 
-  socket.on(SOCKET_EVENT.UPDATE, (organizerInfo: OrganizerInfo) => {
-    port.postMessage({
-      key: MESSAGE_KEY.UPDATE,
-      payload: organizerInfo,
-    });
-  });
+/**
+ * Element를 생성합니다.
+ */
+function createElement({
+  type,
+  options = {},
+  children = [],
+}: createElProps): El {
+  const element = document.createElement(type) as El;
+
+  Object.keys(options).forEach((key) =>
+    element.setAttribute(key, options[key])
+  );
+
+  if (!Array.isArray(children)) {
+    children = Array(children);
+  }
+
+  children.filter((item) => !!item).forEach((child) => element.append(child));
+
+  element.createElement = (args: createElProps): El => {
+    const el = createElement(args);
+    element.append(el);
+    return el;
+  };
+
+  return element;
+}
+
+function openRoom(meetId: string, done: (joined: boolean) => void) {
+  connection.open(
+    meetId,
+    (isRoomOpened: boolean, id: string, error?: string) => {
+      if (!error) {
+        console.log('WebRTC > 연결됨.');
+        return done(true);
+      }
+
+      // 이미 방이 생성된 상태라면 가입을 시도합니다.
+      if (error === connection.errors.ROOM_NOT_AVAILABLE) {
+        return joinRoom(meetId, done);
+      }
+
+      done(false);
+      connection.onerror(error);
+    }
+  );
+}
+
+function joinRoom(meetId: string, done: (joined: boolean) => void) {
+  connection.sessionid = meetId;
+  connection.isInitiator = false;
+  connection.join(
+    meetId,
+    (isRoomJoined: boolean, roomId: string, error?: string) => {
+      if (!error) {
+        console.log('WebRTC > 연결됨.');
+        return done(true);
+      }
+
+      done(false);
+      connection.onerror(error);
+    }
+  );
 }
 
 function onDisconnect() {
@@ -40,37 +99,76 @@ function onDisconnect() {
   alert('extension이 업데이트 되었습니다. 새로고침 후 다시 접속해주세요.');
 }
 
-function onMessage({ key, payload }: Message) {
-  if (key === MESSAGE_KEY.CONNECT) {
-    meetId = payload as string;
-    initSocket();
-  }
+function onConnect(meetId: string, port: chrome.runtime.Port) {
+  connection.socketURL = 'http://localhost:9002/';
+  connection.socketMessageEvent = 'data-sharing';
+  connection.chunkSize = 60 * 1000;
+  connection.sdpConstraints.mandatory = {
+    OfferToReceiveAudio: false,
+    OfferToReceiveVideo: false,
+  };
+  connection.session = { data: true };
 
-  if (key === MESSAGE_KEY.REFETCH) {
-    const organizerInfo = payload as OrganizerInfo;
-    socket.emit(SOCKET_EVENT.UPDATE, meetId, organizerInfo);
-  }
-
-  if (key === MESSAGE_KEY.UPDATE) {
-    const organizerInfo = payload as OrganizerInfo;
-    socket.emit(SOCKET_EVENT.UPDATE, meetId, organizerInfo);
-  }
-
-  if (key === MESSAGE_KEY.INSTALL) {
-    const organizerId = payload as string;
-    draw.install(organizerId);
-  }
-
-  if (key === MESSAGE_KEY.UNINSTALL) {
+  connection.onerror = (...args: any[]) => {
+    console.log('WebRTC > 오류발생 > ', ...args);
     draw.uninstall();
-  }
+  };
+  connection.onmessage = (event: any) => {
+    console.log('message 수신!', event?.data?.key, event?.data?.payload);
+    port.postMessage(event?.data);
+  };
+  connection.checkPresence(meetId, (isRoomExist: boolean) =>
+    (isRoomExist ? joinRoom : openRoom)(meetId, (joined: boolean) => {
+      if (joined) {
+        connection.send({ key: REFETCH });
+      }
+    })
+  );
+  connection.socket.on('disconnect', function () {
+    connection.onerror('disconnect');
+  });
 }
 
-chrome.runtime.onConnect.addListener((_port) => {
-  port = _port;
+function onMessage({ key, payload }: Message, port: chrome.runtime.Port) {
+  console.log({ key, payload });
+  if (key === CONNECT) {
+    const meetId = payload as string;
+    return onConnect(meetId, port);
+  }
+  if (key === UPDATE) {
+    const organizerInfo = payload as OrganizerInfo;
+    return connection.send({
+      key: UPDATE,
+      payload: organizerInfo,
+    });
+  }
+  if (key === RUN) {
+    const meetId = payload as string;
+    if (!document.querySelector("iframe[name='app-scheme-frame']")) {
+      document.body.appendChild(
+        createElement({
+          type: 'iframe',
+          options: { name: 'app-scheme-frame', style: 'display:none' },
+        })
+      );
+    }
+    window.open(`ketch-in://open?id=${meetId}`, 'app-scheme-frame');
+    // 발표를 해제 후 다시 발표를 시작했을 때, 앱을 실행시키지 않는 버그가 있어서 추가했습니다.
+    return window.open(`about:blank`, 'app-scheme-frame');
+  }
+  if (key === INSTALL) {
+    const organizerId = payload as string;
+    return draw.install(organizerId);
+  }
+  if (key === UNINSTALL) {
+    return draw.uninstall();
+  }
+  console.log('no catch > ', key, payload);
+}
 
+chrome.runtime.onConnect.addListener((port) => {
   port.onDisconnect.addListener(onDisconnect);
-  port.onMessage.addListener(onMessage);
+  port.onMessage.addListener((message) => onMessage(message, port));
 });
 
-message.get(MESSAGE_KEY.CONNECT);
+message.get(CONNECT);
