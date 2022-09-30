@@ -1,0 +1,32 @@
+{
+  "name": "ketch-in-components",
+  "version": "0.1.1",
+  "description": "components for ketch-in",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ketch-in/ketch-in-components.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ketch-in/ketch-in-components/issues"
+  },
+  "homepage": "https://github.com/ketch-in/ketch-in-components#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
+    "eslint": "^8.22.0",
+    "less": "^4.1.3",
+    "sass": "^1.54.5",
+    "stylus": "^0.59.0",
+    "typescript": "^4.7.4",
+    "vite": "^3.0.9",
+    "vite-plugin-static-copy": "^0.7.0"
+  }
+}

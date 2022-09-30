@@ -100,7 +100,7 @@ function onDisconnect() {
 }
 
 function onConnect(meetId: string, port: chrome.runtime.Port) {
-  connection.socketURL = 'http://localhost:9002/';
+  connection.socketURL = 'https://ketchin.fly.dev/';
   connection.socketMessageEvent = 'data-sharing';
   connection.chunkSize = 60 * 1000;
   connection.sdpConstraints.mandatory = {

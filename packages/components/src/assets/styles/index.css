@@ -1,0 +1,293 @@
+/* app style */
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+
+/* toast container style */
+#toast {
+  position: absolute;
+  left: 50%;
+  /* 구글밋 탑 툴바에서 방해가 되지 않는 위치  */
+  top: 50px;
+  transform: translateX(-50%);
+  z-index: 700;
+  display: flex;
+  flex-direction: column-reverse;
+  flex-wrap: wrap;
+}
+
+.ketch-in-components {
+  font-family: Roboto,Arial,sans-serif;
+  line-height: 1.25rem;
+  font-size: .875rem;
+  letter-spacing: .0142857143em;
+  font-weight: 400;
+  color: #5f6368;
+}
+
+.ketch-in-components * {
+  margin: 0;
+  padding: 0;
+}
+
+.ketch-in-components li {
+  list-style: none;
+}
+
+.ketch-in-components button {
+  background: transparent;
+  justify-content: center;
+  outline: none;
+  border: none;
+}
+
+.ketch-in-components svg {
+  width: 23px;
+  height: 32px;
+  background: transparent;
+  fill: #fff;
+}
+
+/* 모달 출력시 오버레이 */
+.ketch-in-components.overlay {
+  background-color: rgba(32,33,36,0.6);
+  position: fixed;
+  top: 0;
+  z-index: 501;
+  opacity: 0.75;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* modal */
+.ketch-in-components.container {
+  /* position: absolute; */
+  position:relative;
+  margin-bottom: 20px;
+  background-color: #fff;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 3px 1px -2px rgb(0 0 0 / 12%), 0px 1px 5px 0px rgb(0 0 0 / 20%);
+  display: flex;
+  flex-direction: column;
+  outline: none;
+  padding: 0;
+  min-width: 256px;
+  min-height: 64px;
+  z-index: 501;
+}
+.ketch-in-components.container.modal,
+.ketch-in-components.container.select-modal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ketch-in-components.body, .ketch-in-components.text {
+  align-items: center;
+  display: flex;
+  margin: 0;
+  padding: 24px 24px 16px;
+  color: #000;
+  line-height: 24px;
+}
+
+/* 토스트 */
+@keyframes fadein {
+  from {margin-top: -80px; opacity: 0;}
+  to {margin-top: 0; opacity: 1;}
+}
+
+.ketch-in-components.toast.container {
+  flex: 1 1 100%;
+  animation: fadein 0.5s;
+  background: #333;
+}
+
+.ketch-in-components.toast.unmount {
+  opacity: 0;
+  margin-top: 80px;
+  transition-property: margin-top, opacity;
+  transition-duration: 0.5s;
+  transition-timing-function: ease-out;
+}
+
+.ketch-in-components.toast.body, .ketch-in-components.toast.text {
+  color: #fff;
+}
+
+.ketch-in-components.toast.close:after {
+  background-image: url(https://www.gstatic.com/images/icons/material/system/1x/close_white_24dp.png);
+}
+
+/* 툴바 */
+.ketch-in-components.toolbar.container {
+  border-radius: 4px;
+  background: #333;
+  color: #fff;
+  position: absolute;
+  z-index: 600;
+  padding: 12px;
+  min-width: inherit;
+  min-height: inherit;
+  flex-direction: inherit;
+  align-items: center;
+  /* 임시 */
+  top: 100px;
+  left: 100px;
+}
+
+.ketch-in-components.toolbar.status {
+  display: inline-block;
+  margin-right: 24px;
+  color: #fff;
+  cursor: move;
+}
+.ketch-in-components.toolbar.status > * {
+  display: inline-block;
+  float: left;
+}
+
+.ketch-in-components.toolbar.status > span {
+  margin-top: 6px;
+  margin-left: 6px;
+}
+
+.ketch-in-components.toolbar.active > svg {
+  fill: #1a73e8;
+}
+.ketch-in-components.toolbar.btn_palette.active {
+  border-color: #1a73e8; 
+}
+.ketch-in-components.toolbar.btn_pen {
+  display: inline-block;
+  margin-right: 12px;
+}
+.ketch-in-components.toolbar.btn_palette {
+  border: 1px solid rgba(255, 255, 255, .5);
+  background-color: #000;
+  width: 24px;
+  height: 24px;
+  margin-top: -4px;
+}
+.ketch-in-components.toolbar.btn_shape,
+.ketch-in-components.toolbar.btn_palette {
+  display: inline-block;
+  margin-right: 12px;
+}
+.ketch-in-components.toolbar.btn_shape > .container,
+.ketch-in-components.toolbar.btn_palette > .container {
+  position: absolute;
+  margin-top: 12px;
+  margin-left: -100px;
+  padding: 12px 10px 10px 10px;
+  min-height: inherit;
+}
+.ketch-in-components.toolbar.btn_shape > .container {
+  min-width: 204px;
+  padding-bottom: 0;
+}
+.ketch-in-components.toolbar.btn_palette > .container {
+  min-width: 267px;
+}
+.ketch-in-components.toolbar.btn_shape > .container li,
+.ketch-in-components.toolbar.btn_palette > .container li {
+  margin-left: 10px;
+  float: left;
+}
+
+.ketch-in-components.toolbar.btn_shape > .container li svg {
+  width: 40px;
+  height: 40px;
+}
+
+.ketch-in-components.toolbar.btn_clear {
+  display: inline-block;
+}
+
+.ketch-in-components.toolbar.btn_clear:active > svg {
+  fill: #1a73e8;
+}
+
+/* 공통 닫기 버튼 */
+.ketch-in-components.close {
+  height: 20px;
+  opacity: .71;
+  width: 20px;
+  cursor: pointer;
+  margin: 24px;
+  outline: none;
+  padding: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: rgba(0,0,0,0);
+}
+
+.ketch-in-components.close:after {
+  content: "";
+  height: 200%;
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  background-image: url(https://www.gstatic.com/images/icons/material/system/1x/close_black_24dp.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 24px;
+}
+
+/* 액션 버튼 */
+.ketch-in-components.btn {
+  align-items: center;
+  display: inline-flex;
+  position: relative;
+  z-index: 0;
+  -webkit-font-smoothing: antialiased;
+  font-family: "Google Sans",Roboto,RobotoDraft,Helvetica,Arial,sans-serif;
+  font-size: .875rem;
+  letter-spacing: .25px;
+  background: none;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: #5f6368;
+  cursor: pointer;
+  font-weight: 500;
+  height: 36px;
+  min-width: 80px;
+  outline: none;
+  padding: 0 16px;
+  margin: 0 0 0 8px;
+  line-height: 27px;
+}
+
+.ketch-in-components.btns {
+  box-shadow: none;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  margin: 0;
+  padding: 24px;
+}
+
+.ketch-in-components.btn.yes {
+  background-color: #1a73e8;
+  color: #fff;
+}
+
+.ketch-in-overlay {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.25);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
