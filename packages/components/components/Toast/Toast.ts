@@ -1,4 +1,6 @@
-import MomentComponent, { MomentComponentProps } from "../../core/MomentComponent";
+import MomentComponent, {
+  MomentComponentProps,
+} from '../../core/MomentComponent';
 
 export interface ToastComponentProps extends MomentComponentProps {
   children: HTMLElement;
@@ -21,7 +23,7 @@ export default class ToastComponent extends MomentComponent {
     onClick = () => {},
     onClose = () => {},
   }: ToastComponentProps) {
-    super({ momentDelay, data, defaultClassName: "toast" });
+    super({ momentDelay, data, defaultClassName: 'toast' });
 
     this.children = children;
     this.removeDelay = removeDelay;
@@ -42,15 +44,15 @@ export default class ToastComponent extends MomentComponent {
   mount(target: HTMLElement) {
     const element = this.getElement();
 
-    const bodyEl = this.createElement("div");
-    const closeEl = this.createElement("span");
+    const bodyEl = this.createElement('div');
+    const closeEl = this.createElement('span');
 
     bodyEl.append(this.children);
     /** TODO : 닫기 아이콘으로 변경 예정 */
-    closeEl.innerText = "닫기";
+    closeEl.innerText = '닫기';
 
-    bodyEl.classList.add("text");
-    closeEl.classList.add("close");
+    bodyEl.classList.add('text');
+    closeEl.classList.add('close');
 
     element.appendChild(bodyEl);
     element.appendChild(closeEl);
@@ -76,7 +78,9 @@ export default class ToastComponent extends MomentComponent {
       if (this.isMount()) {
         const customDelay = this.onClose(action);
         const delay = (
-          !!customDelay || customDelay === 0 ? customDelay : this.getRemoveDelay()
+          !!customDelay || customDelay === 0
+            ? customDelay
+            : this.getRemoveDelay()
         ) as number;
         this.setRemoveDelay(delay);
       } else {
@@ -89,8 +93,7 @@ export default class ToastComponent extends MomentComponent {
       }
 
       this.unmounting();
-
-      setTimeout(async () => await super.unmount(), this.getRemoveDelay());
+      setTimeout(() => super.unmount(), this.getRemoveDelay());
     });
   }
 }

@@ -1,30 +1,31 @@
-import PureComponent, { PureComponentProps } from "./PureComponent";
+import PureComponent, { PureComponentProps } from './PureComponent';
 
 export default class OverlayComponent extends PureComponent {
   private overlay: HTMLElement;
 
-  constructor({
-    data,
-    defaultClassName,
-  }: PureComponentProps) {
+  constructor({ data, defaultClassName }: PureComponentProps) {
     super({ data, defaultClassName, removeDelay: 0 });
     const overlay = this.getOverlay();
     this.overlay = overlay;
   }
 
   protected getOverlay() {
-    const overlay = document.body.querySelector(".ketch-in-overlay") as HTMLDivElement;
+    const overlay = document.body.querySelector(
+      '.ketch-in-overlay'
+    ) as HTMLDivElement;
     return overlay;
   }
 
   protected existModal() {
-    const modal = document.body.querySelector(".ketch-in-components.select-modal,.ketch-in-components.modal");
+    const modal = document.body.querySelector(
+      '.ketch-in-components.select-modal,.ketch-in-components.modal'
+    );
     return !!modal;
   }
 
   protected createOverlay() {
-    const overlayEl = document.createElement("div");
-    overlayEl.classList.add("ketch-in-overlay");
+    const overlayEl = document.createElement('div');
+    overlayEl.classList.add('ketch-in-overlay');
     return overlayEl;
   }
 
@@ -38,11 +39,12 @@ export default class OverlayComponent extends PureComponent {
     return super.mount(target);
   }
 
-  protected async unmount() {
-    const res = await super.unmount();
-    if (!this.existModal()) {
-      this.overlay.remove();
-    }
-    return res;
+  protected unmount() {
+    return super.unmount().then((res) => {
+      if (!this.existModal()) {
+        this.overlay.remove();
+      }
+      return res;
+    });
   }
 }

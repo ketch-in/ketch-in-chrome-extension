@@ -1,6 +1,7 @@
 import message, { MESSAGE_KEY, RTC_EVENT, Message } from './message';
 import { OrganizerInfo } from './storage';
 import Draw from './draw';
+import { ToolbarController } from '../packages/components';
 
 //@ts-ignore
 import RTCMultiConnection from 'rtcmulticonnection';
@@ -55,6 +56,22 @@ function createElement({
   };
 
   return element;
+}
+
+function openToolbar() {
+  const div = document.createElement('div');
+  document.body.appendChild(div);
+  const toolbarController = new ToolbarController(div, {});
+  toolbarController.add({
+    status: 'KetchIn',
+    handlePen: () => console.log('switch to drawing line mode'),
+    handleShape: (selectedShape) =>
+      console.log(`switch to drawing [${selectedShape.type}] shape mode`),
+    // TODO: selectedShape 객체의 svg 필드 활용
+    handleColor: (selectedColor) =>
+      console.log(`pen color is now [${selectedColor}]`),
+    onClear: () => console.log('clear canvas'),
+  });
 }
 
 function openRoom(meetId: string, done: (joined: boolean) => void) {
@@ -172,3 +189,4 @@ chrome.runtime.onConnect.addListener((port) => {
 });
 
 message.get(CONNECT);
+openToolbar();
