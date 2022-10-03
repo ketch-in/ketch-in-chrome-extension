@@ -7,8 +7,7 @@ export interface DrawPoint {
 
 function createCoverElement(videoElement: HTMLVideoElement) {
   const { x, y, width, height } = videoElement.getBoundingClientRect();
-  const coverElement =
-    document.getElementById('cover') || document.createElement('div');
+  const coverElement = document.createElement('div');
   coverElement.classList.add('cover');
   coverElement.style.position = 'absolute';
   coverElement.style.left = `${x}px`;
@@ -21,10 +20,14 @@ function createCoverElement(videoElement: HTMLVideoElement) {
   return coverElement;
 }
 
+let hasCover: boolean = false;
 export function appendCoverElement(
   videoElement: HTMLVideoElement,
   onDraw: (drawPoint: DrawPoint) => void
 ) {
+  if (hasCover) return;
+  hasCover = true;
+
   const coverElement = createCoverElement(videoElement);
 
   coverElement.addEventListener('mousemove', (e: MouseEvent) => {
@@ -40,9 +43,9 @@ export function appendCoverElement(
   });
 
   coverElement.addEventListener('mouseout', () => {
-    coverElement.style.display = 'none';
+    document.body.removeChild(coverElement);
+    hasCover = false;
   });
 
-  coverElement.style.display = 'block';
   document.body.append(coverElement);
 }
