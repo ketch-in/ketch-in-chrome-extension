@@ -1,7 +1,7 @@
 import message, { MESSAGE_KEY, RTC_EVENT, Message } from './message';
 import { OrganizerInfo } from './storage';
-import Draw from './draw';
 import { ToolbarController } from '../packages/components';
+import { onDraw } from './draw';
 
 //@ts-ignore
 import RTCMultiConnection from 'rtcmulticonnection';
@@ -25,9 +25,6 @@ type El = Element & {
 
 //@ts-ignore
 const connection = new RTCMultiConnection();
-const draw = new Draw((drawPoint) =>
-  connection.send({ key: DRAW, payload: drawPoint })
-);
 
 /**
  * Element를 생성합니다.
@@ -128,7 +125,6 @@ function onConnect(meetId: string, port: chrome.runtime.Port) {
 
   connection.onerror = (...args: any[]) => {
     console.log('WebRTC > 오류발생 > ', ...args);
-    draw.uninstall();
   };
   connection.onmessage = (event: any) => {
     console.log('message 수신!', event?.data?.key, event?.data?.payload);
@@ -173,13 +169,7 @@ function onMessage({ key, payload }: Message, port: chrome.runtime.Port) {
     // 발표를 해제 후 다시 발표를 시작했을 때, 앱을 실행시키지 않는 버그가 있어서 추가했습니다.
     return window.open(`about:blank`, 'app-scheme-frame');
   }
-  if (key === INSTALL) {
-    const organizerId = payload as string;
-    return draw.install(organizerId);
-  }
-  if (key === UNINSTALL) {
-    return draw.uninstall();
-  }
+
   console.log('no catch > ', key, payload);
 }
 
@@ -190,3 +180,8 @@ chrome.runtime.onConnect.addListener((port) => {
 
 message.get(CONNECT);
 openToolbar();
+
+onDraw((participantId, drawPoint) => {
+  // TODO 해당 participantId가 host가 실행중인지 확인하고 전송
+  console.log(participantId, drawPoint);
+});
