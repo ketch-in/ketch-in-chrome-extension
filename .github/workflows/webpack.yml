@@ -1,0 +1,41 @@
+name: NodeJS with Webpack
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Build
+      env:
+        pem: ${{ secrets.EXTENSION_PEM }}
+        GITHUB_TOKEN: ${{ secrets.ACCESS_GITHUB }}
+      run: |
+        npm install
+        chrome --pack-extension=./dist --pack-extension-key=$pem
+        mkdir chrome
+        cd chrome
+        cp ../dist.crx ./ketch-in-extension.crx
+        cd ../
+        rm -rf ./dist.crx
+        git config --local user.name Sotaneum
+        git config --local user.email gnyontu39@gmail.com
+        git add .
+        git commit -f "update"
+        git push
