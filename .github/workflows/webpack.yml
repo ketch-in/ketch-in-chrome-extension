@@ -17,12 +17,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Install chrome ${{ matrix.version }}
-      id: browser
-      uses: ./
+    - uses: abhi1693/setup-browser@v0.3.4
       with:
         browser: chrome
-        version: ${{ matrix.version }}
+        version: latest
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
