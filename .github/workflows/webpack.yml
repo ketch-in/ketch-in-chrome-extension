@@ -36,7 +36,7 @@ jobs:
       env:
         pem: ${{ secrets.EXTENSION_PEM }}
       run: |
-        echo $pem > key.pem
+        echo "$pem" > key.pem
         chrome --pack-extension=./dist --pack-extension-key=./key.pem
         rm -rf ./key.pem
         mkdir chrome
