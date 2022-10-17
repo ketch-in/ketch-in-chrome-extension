@@ -52,5 +52,5 @@ jobs:
         git config --local user.name Sotaneum
         git config --local user.email gnyontu39@gmail.com
         git add .
-        git commit -f "update"
+        git commit -m "update"
         git push
