@@ -28,17 +28,25 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Build
-      env:
-        pem: ${{ secrets.EXTENSION_PEM }}
-        GITHUB_TOKEN: ${{ secrets.ACCESS_GITHUB }}
       run: |
         npm install
+        npm run build
+
+    - name: pack
+      env:
+        pem: ${{ secrets.EXTENSION_PEM }}
+      run: |
         chrome --pack-extension=./dist --pack-extension-key=$pem
         mkdir chrome
         cd chrome
         cp ../dist.crx ./ketch-in-extension.crx
         cd ../
         rm -rf ./dist.crx
+
+    - name: push
+      env:
+        GITHUB_TOKEN: ${{ secrets.ACCESS_GITHUB }}
+      run: |
         git config --local user.name Sotaneum
         git config --local user.email gnyontu39@gmail.com
         git add .
