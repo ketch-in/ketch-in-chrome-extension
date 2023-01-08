@@ -4,7 +4,11 @@
   KETCH IN
   <br>
   CHROME EXTENSION
+  <br>
+  [deprecated]
 </h1>
+
+<h4 align="center">ketch-in-extension는 <a href="https://github.com/ketch-in/ketch-in">ketch-in</a>에서 함께 관리됩니다.</h4>
 
 ## Features
 
